@@ -13,7 +13,7 @@ class MovieModel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    date: Mapped[datetime.date] = mapped_column(Date, nullable=True)
     score: Mapped[float] = mapped_column(Float, nullable=False)
     genre: Mapped[str] = mapped_column(String(255), nullable=False)
     overview: Mapped[str] = mapped_column(Text, nullable=False)

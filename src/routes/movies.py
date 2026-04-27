@@ -12,7 +12,7 @@ from schemas.movies import (
     MovieUpdateSchema
 )
 
-router = APIRouter(prefix="/movies", tags=["movies"])
+router = APIRouter(prefix="/theater/movies", tags=["movies"])
 
 
 @router.get("/", response_model=MovieListResponseSchema)
@@ -68,7 +68,7 @@ async def get_movies(
     movies_response = [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
 
     # Generate prev_page and next_page URLs
-    base_url = "/movies/"
+    base_url = "/theater/movies/"
     params = []
     if genre:
         params.append(f"genre={genre}")
@@ -242,10 +242,12 @@ async def get_movies_by_genre(
     total_pages = ceil(total_items / per_page)
     movies_response = [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
 
+    base_url = f"/theater/movies/by-genre/{genre}/"
+
     return MovieListResponseSchema(
         movies=movies_response,
-        prev_page=f"/movies/by-genre/{genre}/?page={page - 1}&per_page={per_page}" if page > 1 else None,
-        next_page=f"/movies/by-genre/{genre}/?page={page + 1}&per_page={per_page}" if page < total_pages else None,
+        prev_page=f"{base_url}?page={page - 1}&per_page={per_page}" if page > 1 else None,
+        next_page=f"{base_url}?page={page + 1}&per_page={per_page}" if page < total_pages else None,
         total_pages=total_pages,
         total_items=total_items
     )

@@ -7,6 +7,7 @@ class MovieDetailResponseSchema(BaseModel):
     """Schema for detailed movie information"""
     id: int
     name: str
+    movie_date: Optional[date] = None
     release_date: Optional[date] = None
     score: Optional[float] = None
     genre: Optional[str] = None
