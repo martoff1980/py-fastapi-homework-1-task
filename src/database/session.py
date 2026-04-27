@@ -4,8 +4,8 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 
-from config import get_settings
-from database import Base
+# from config import get_settings
+# from database import Base
 
 from sqlalchemy.orm import declarative_base
 from src.config.settings import get_settings
@@ -89,11 +89,9 @@ async def reset_sqlite_database() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
 
-
 # Create async session factory
 AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
-

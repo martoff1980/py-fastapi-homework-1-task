@@ -9,7 +9,7 @@ from schemas.movies import MovieCreateSchema, MovieUpdateSchema
 
 class MovieCRUD:
     """CRUD operations for movies"""
-    
+
     def __init__(self, db: AsyncSession):
         self.db = db
     
@@ -78,7 +78,7 @@ class MovieCRUD:
         existing_movie = await self.get_movie_by_id(movie_id)
         if not existing_movie:
             return None
-        
+
         # Update only provided fields
         update_data = movie_data.model_dump(exclude_unset=True)
         if update_data:
@@ -91,9 +91,9 @@ class MovieCRUD:
             result = await self.db.execute(query)
             await self.db.commit()
             return result.scalar_one()
-        
+
         return existing_movie
-    
+
     async def delete_movie(self, movie_id: int) -> bool:
         """Delete a movie"""
         query = delete(MovieModel).where(MovieModel.id == movie_id)
@@ -102,9 +102,9 @@ class MovieCRUD:
         return result.rowcount > 0
     
     async def get_movies_by_genre(
-        self, 
-        genre: str, 
-        page: int = 1, 
+        self,
+        genre: str,
+        page: int = 1,
         per_page: int = 10
     ) -> Tuple[List[MovieModel], int]:
         """Get movies filtered by genre"""
@@ -112,7 +112,7 @@ class MovieCRUD:
         return await self.get_movies_paginated(page, per_page, filters)
     
     async def get_top_rated_movies(
-        self, 
+        self,
         limit: int = 10
     ) -> List[MovieModel]:
         """Get top rated movies"""
@@ -127,8 +127,8 @@ class MovieCRUD:
     
     async def get_movies_by_country(
         self, 
-        country: str, 
-        page: int = 1, 
+        country: str,
+        page: int = 1,
         per_page: int = 10
     ) -> Tuple[List[MovieModel], int]:
         """Get movies filtered by country"""

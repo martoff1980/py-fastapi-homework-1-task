@@ -23,6 +23,7 @@ class MovieDetailResponseSchema(BaseModel):
         from_attributes = True
 
 
+
 class MovieListResponseSchema(BaseModel):
     """Schema for paginated movie list"""
     movies: List[MovieDetailResponseSchema]
@@ -33,6 +34,7 @@ class MovieListResponseSchema(BaseModel):
     
     class Config:
         from_attributes = True
+
 
 class MovieCreateSchema(BaseModel):
     """Schema for creating a new movie"""
@@ -52,6 +54,7 @@ class MovieCreateSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class MovieUpdateSchema(BaseModel):
     """Schema for updating a movie"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
@@ -67,7 +70,6 @@ class MovieUpdateSchema(BaseModel):
     revenue: Optional[int] = Field(None, ge=0)
     country: Optional[str] = Field(None, max_length=2)
     
+
     class Config:
         from_attributes = True
-
-        
