@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+from typing import Optional, List
 from math import ceil
 
 from database import get_db
 from crud.movies import MovieCRUD
 from schemas.movies import (
-    MovieDetailResponseSchema, 
+    MovieDetailResponseSchema,
     MovieListResponseSchema,
     MovieCreateSchema,
     MovieUpdateSchema
@@ -28,7 +28,7 @@ async def get_movies(
 ):
     """
     Get a paginated list of movies with optional filters.
-    
+
     - **page**: Page number (>= 1)
     - **per_page**: Number of movies per page (1-20)
     - **genre**: Filter by genre
@@ -38,7 +38,7 @@ async def get_movies(
     - **status**: Filter by release status
     """
     crud = MovieCRUD(db)
-    
+
     # Prepare filters
     filters = {}
     if genre:
@@ -51,22 +51,22 @@ async def get_movies(
         filters['country'] = country.upper()
     if status:
         filters['status'] = status
-    
+
     # Get movies with pagination
     movies, total_items = await crud.get_movies_paginated(page, per_page, filters)
-    
+
     if total_items == 0:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="No movies found."
         )
-    
+
     # Calculate total pages
     total_pages = ceil(total_items / per_page)
-    
+
     # Convert to response schema
     movies_response = [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
-    
+
     # Generate prev_page and next_page URLs
     base_url = "/movies/"
     params = []
@@ -80,13 +80,13 @@ async def get_movies(
         params.append(f"country={country}")
     if status:
         params.append(f"status={status}")
-    
+
     param_str = "&".join(params)
     base_url_with_filters = base_url + (f"?{param_str}&" if param_str else "?")
-    
+
     prev_page_url = None
     next_page_url = None
-    
+
     if page > 1:
         prev_page_url = f"{base_url_with_filters}page={page - 1}&per_page={per_page}"
     else:
@@ -95,13 +95,13 @@ async def get_movies(
             prev_page_url = f"{base_url}?{param_str}&page={page - 1}&per_page={per_page}"
         else:
             prev_page_url = f"{base_url}?page={page - 1}&per_page={per_page}"
-    
+
     if page < total_pages:
         if param_str:
             next_page_url = f"{base_url}?{param_str}&page={page + 1}&per_page={per_page}"
         else:
             next_page_url = f"{base_url}?page={page + 1}&per_page={per_page}"
-    
+
     return MovieListResponseSchema(
         movies=movies_response,
         prev_page=prev_page_url,
@@ -118,18 +118,18 @@ async def get_movie_by_id(
 ):
     """
     Get detailed information about a movie by its ID.
-    
+
     - **movie_id**: The ID of the movie to fetch
     """
     crud = MovieCRUD(db)
     movie = await crud.get_movie_by_id(movie_id)
-    
+
     if movie is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Movie with the given ID was not found."
         )
-    
+
     return MovieDetailResponseSchema.model_validate(movie)
 
 
@@ -140,7 +140,7 @@ async def create_movie(
 ):
     """
     Create a new movie.
-    
+
     - **movie_data**: Movie information
     """
     crud = MovieCRUD(db)
@@ -156,19 +156,19 @@ async def update_movie(
 ):
     """
     Update an existing movie.
-    
+
     - **movie_id**: ID of the movie to update
     - **movie_data**: Updated movie information
     """
     crud = MovieCRUD(db)
     movie = await crud.update_movie(movie_id, movie_data)
-    
+
     if movie is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Movie with the given ID was not found."
         )
-    
+
     return MovieDetailResponseSchema.model_validate(movie)
 
 
@@ -179,18 +179,18 @@ async def delete_movie(
 ):
     """
     Delete a movie.
-    
+
     - **movie_id**: ID of the movie to delete
     """
     crud = MovieCRUD(db)
     deleted = await crud.delete_movie(movie_id)
-    
+
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Movie with the given ID was not found."
         )
-    
+
     return None
 
 
@@ -201,18 +201,18 @@ async def get_top_rated_movies(
 ):
     """
     Get top rated movies.
-    
+
     - **limit**: Number of movies to return (1-50)
     """
     crud = MovieCRUD(db)
     movies = await crud.get_top_rated_movies(limit)
-    
+
     if not movies:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No movies found."
         )
-    
+
     return [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
 
 
@@ -225,27 +225,27 @@ async def get_movies_by_genre(
 ):
     """
     Get movies filtered by genre.
-    
+
     - **genre**: Genre name
     - **page**: Page number
     - **per_page**: Items per page
     """
     crud = MovieCRUD(db)
     movies, total_items = await crud.get_movies_by_genre(genre, page, per_page)
-    
+
     if total_items == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No movies found in genre '{genre}'."
         )
-    
+
     total_pages = ceil(total_items / per_page)
     movies_response = [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
-    
+
     return MovieListResponseSchema(
         movies=movies_response,
-        prev_page=f"/movies/by-genre/{genre}/?page={page-1}&per_page={per_page}" if page > 1 else None,
-        next_page=f"/movies/by-genre/{genre}/?page={page+1}&per_page={per_page}" if page < total_pages else None,
+        prev_page=f"/movies/by-genre/{genre}/?page={page - 1}&per_page={per_page}" if page > 1 else None,
+        next_page=f"/movies/by-genre/{genre}/?page={page + 1}&per_page={per_page}" if page < total_pages else None,
         total_pages=total_pages,
         total_items=total_items
     )
