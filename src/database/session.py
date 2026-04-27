@@ -1,17 +1,23 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 
 from config import get_settings
 from database import Base
 
+from sqlalchemy.orm import declarative_base
+from src.config.settings import get_settings
+
+# Base class for models
+Base = declarative_base()
+
 settings = get_settings()
 
 DATABASE_URL = f"sqlite+aiosqlite:///{settings.PATH_TO_DB}"
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
 AsyncSQLiteSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)  # type: ignore
 
@@ -47,7 +53,10 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     :return: An asynchronous generator yielding an AsyncSession instance.
     """
     async with AsyncSQLiteSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 @asynccontextmanager
@@ -78,3 +87,13 @@ async def reset_sqlite_database() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+
+
+# Create async session factory
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
