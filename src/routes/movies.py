@@ -9,7 +9,7 @@ from math import ceil
 
 from src.schemas.movies import MovieDetailResponseSchema, MovieListResponseSchema
 
-router = APIRouter(prefix="/theater/movies", tags=["movies"])
+router = APIRouter(prefix="/movies", tags=["movies"])
 
 
 @router.get("/", response_model=MovieListResponseSchema)
