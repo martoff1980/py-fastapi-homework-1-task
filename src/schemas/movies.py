@@ -67,4 +67,3 @@ class MovieUpdateSchema(BaseModel):
     country: Optional[str] = Field(None, max_length=2)
 
     model_config = ConfigDict(from_attributes=True)
-
