@@ -49,7 +49,8 @@ class MovieCreateSchema(BaseModel):
     country: Optional[str] = Field(None, max_length=2)
 
     model_config = ConfigDict(from_attributes=True)
-    
+
+
 class MovieUpdateSchema(BaseModel):
     """Schema for updating a movie"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
@@ -64,5 +65,6 @@ class MovieUpdateSchema(BaseModel):
     budget: Optional[float] = Field(None, ge=0)
     revenue: Optional[float] = Field(None, ge=0)
     country: Optional[str] = Field(None, max_length=2)
-    
+
     model_config = ConfigDict(from_attributes=True)
+
