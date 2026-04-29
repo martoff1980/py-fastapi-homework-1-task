@@ -9,7 +9,7 @@ from math import ceil
 
 from src.schemas.movies import MovieDetailResponseSchema, MovieListResponseSchema
 
-router = APIRouter(prefix="/movies", tags=["movies"])
+router = APIRouter(prefix="/theater/movies", tags=["movies"])
 
 
 @router.get("/", response_model=MovieListResponseSchema)
@@ -62,7 +62,7 @@ async def get_movies(
     movies_response = [MovieDetailResponseSchema.model_validate(movie) for movie in movies]
 
     # Generate prev_page and next_page URLs
-    base_url = "/movies/"
+    base_url = "/theater/movies/"
 
     prev_page_url = f"{base_url}?page={page - 1}&per_page={per_page}" if page > 1 else None
     next_page_url = f"{base_url}?page={page + 1}&per_page={per_page}" if page < total_pages else None
