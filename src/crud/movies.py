@@ -3,8 +3,8 @@ from sqlalchemy import select, update, delete, func
 from typing import List, Optional, Tuple
 from math import ceil
 
-from database.models import MovieModel
-from schemas.movies import MovieCreateSchema, MovieUpdateSchema
+from src.database.models import MovieModel
+from src.schemas.movies import MovieCreateSchema, MovieUpdateSchema
 
 
 class MovieCRUD:
